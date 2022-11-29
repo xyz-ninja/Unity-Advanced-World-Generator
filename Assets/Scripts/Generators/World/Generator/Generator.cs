@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using AccidentalNoiseLibrary;
+using NaughtyAttributes;
 
 public class Generator : MonoBehaviour {
     
@@ -27,11 +28,16 @@ public class Generator : MonoBehaviour {
     private Tile[,] _tiles;
 
     private void Start() {
+        Generate();
+    }
+
+    [Button()]
+    public void Generate() {
         
         Initialize();
         
         GetData(_heightMap, ref _heightData); // создаём карту высот
-        LoadTiles(); // создаём тайлы
+        LoadTiles();                          // создаём тайлы
         
         // рендерим текстуру
         _heightMapRenderer.materials[0].mainTexture = TextureGenerator.GetWorldGeneratorTexture(
@@ -56,17 +62,30 @@ public class Generator : MonoBehaviour {
         for (int x = 0; x < _width; x++) {
             for (int y = 0; y < _height; y++) {
                 
+                // пределы шума
+                float x1 = 0, x2 = 1;
+                float y1 = 0, y2 = 1;
+                
+                float dx = x2 - x1;
+                float dy = y2 - y1;
+                
                 // сэмплируем шум с небольшими интервалами
-                float x1 = x / (float) _width;
-                float y1 = y / (float) _height;
+                float s = x / (float) _width;
+                float t = y / (float) _height;
 
-                float value = (float) _heightMap.Get(x1, y1);
+                // вычисляем трёхмерные координаты
+                float nx = x1 + Mathf.Cos(s * 2 * Mathf.PI) * dx / (2 * Mathf.PI);
+                float ny = x1 + Mathf.Sin(s * 2 * Mathf.PI) * dx / (2 * Mathf.PI);
+                float nz = t;
+                
+                //float heightValue = (float) _heightMap.Get(x1, y1);
+                float heightValue = (float) _heightMap.Get(nx, ny, nz);
                 
                 // отслеживаем максимальные и минимальные найденные значения
-                if (value > mapData.Max) { mapData.Max = value; }
-                if (value < mapData.Min) { mapData.Min = value; }
+                if (heightValue > mapData.Max) { mapData.Max = heightValue; }
+                if (heightValue < mapData.Min) { mapData.Min = heightValue; }
 
-                mapData.Data[x, y] = value;
+                mapData.Data[x, y] = heightValue;
             }
         }
     }
