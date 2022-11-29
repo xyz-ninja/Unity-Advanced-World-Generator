@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using AccidentalNoiseLibrary;
 
 public class Generator : MonoBehaviour {
-
+    
     [Header("Components")] 
     [SerializeField] private MeshRenderer _heightMapRenderer;
 
@@ -12,6 +13,9 @@ public class Generator : MonoBehaviour {
     [SerializeField] private int _height = 256;
     [SerializeField] private int _terrainOctaves = 6;
     [SerializeField] private double _terrainFrequency = 1.25;
+
+    [Header("Height Datas")]
+    [SerializeField] private List<HeightData> _heightDatas = new List<HeightData>();
     
     // модуль генератора шума
     private ImplicitFractal _heightMap;
@@ -30,7 +34,8 @@ public class Generator : MonoBehaviour {
         LoadTiles(); // создаём тайлы
         
         // рендерим текстуру
-        _heightMapRenderer.materials[0].mainTexture = TextureGenerator.GetTexture(_width, _height, _tiles);
+        _heightMapRenderer.materials[0].mainTexture = TextureGenerator.GetWorldGeneratorTexture(
+            this, _width, _height, _tiles);
     }
 
     private void Initialize() {
@@ -90,4 +95,16 @@ public class Generator : MonoBehaviour {
             }
         }
     }
+
+    public HeightData GetHeightDataByValue(float value) {
+        foreach (var heightData in _heightDatas) {
+            if (value <= heightData.HeightValue) {
+                return heightData;
+            }
+        }
+
+        Debug.Log("HeightData not found!");
+        return _heightDatas[0];
+    }
 }
+ 
