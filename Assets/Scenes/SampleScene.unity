@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 277526157}
   - component: {fileID: 277526158}
+  - component: {fileID: 277526159}
   m_Layer: 0
   m_Name: Generator
   m_TagString: Untagged
@@ -167,6 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d90601b5009c254e912468e9c973827, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tilesSearch: {fileID: 277526159}
   _heightMapRenderer: {fileID: 1873860736}
   _width: 256
   _height: 256
@@ -174,26 +176,46 @@ MonoBehaviour:
   _terrainFrequency: 1.25
   _heightDatas:
   - Name: Deep Water
+    _index: 0
     _heightValue: 0.2
     _color: {r: 0, g: 0.07269773, b: 0.7264151, a: 1}
   - Name: Shallow Water
+    _index: 1
     _heightValue: 0.4
     _color: {r: 0.19784619, g: 0.2483781, b: 0.735849, a: 1}
   - Name: Sand
+    _index: 2
     _heightValue: 0.5
     _color: {r: 0.754717, g: 0.59228647, b: 0, a: 1}
   - Name: Grass
+    _index: 3
     _heightValue: 0.7
     _color: {r: 0.21317251, g: 0.5, b: 0.1957547, a: 1}
   - Name: Forest
+    _index: 4
     _heightValue: 0.8
     _color: {r: 0.07983268, g: 0.24528301, b: 0.112394325, a: 1}
   - Name: Rock
+    _index: 5
     _heightValue: 0.9
     _color: {r: 0.2790139, g: 0.29859447, b: 0.3584906, a: 1}
   - Name: Snow
+    _index: 6
     _heightValue: 1
     _color: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &277526159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277526156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5af31741aa58d8d428e665d3a348a3f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _generator: {fileID: 277526158}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

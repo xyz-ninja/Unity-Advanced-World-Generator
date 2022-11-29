@@ -6,11 +6,13 @@ public class HeightData {
         
 	public string Name = "Height Data";
 
+	[SerializeField] private int _index = 0;
 	[SerializeField] private float _heightValue;
 	[SerializeField] private Color _color = Color.white;
 
 	#region getters
 
+	public int Index => _index;
 	public float HeightValue => _heightValue;
 	public Color Color => _color;
 

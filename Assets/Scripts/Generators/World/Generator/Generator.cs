@@ -5,8 +5,9 @@ using AccidentalNoiseLibrary;
 using NaughtyAttributes;
 
 public class Generator : MonoBehaviour {
-    
+
     [Header("Components")] 
+    [SerializeField] private TilesSearch _tilesSearch;
     [SerializeField] private MeshRenderer _heightMapRenderer;
 
     [Header("Parametres")] 
@@ -22,11 +23,22 @@ public class Generator : MonoBehaviour {
     private ImplicitFractal _heightMap;
     
     // карта высот
-    private MapData _heightData;
+    private MapData _heightMapData;
     
     // конечные объекты
     private Tile[,] _tiles;
 
+    #region getters
+
+    public TilesSearch TilesSearch => _tilesSearch;
+
+    public int Width => _width;
+    public int Height => _height;
+
+    public Tile[,] Tiles => _tiles;
+
+    #endregion
+    
     private void Start() {
         Generate();
     }
@@ -35,9 +47,9 @@ public class Generator : MonoBehaviour {
     public void Generate() {
         
         Initialize();
-        
-        GetData(_heightMap, ref _heightData); // создаём карту высот
-        LoadTiles();                          // создаём тайлы
+
+        GetData(_heightMap, ref _heightMapData); // создаём карту высот
+        LoadTiles();                             // создаём тайлы
         
         // рендерим текстуру
         _heightMapRenderer.materials[0].mainTexture = TextureGenerator.GetWorldGeneratorTexture(
@@ -73,13 +85,13 @@ public class Generator : MonoBehaviour {
                 float s = x / (float) _width;
                 float t = y / (float) _height;
 
-                // вычисляем трёхмерные координаты
+                // вычисляем ебанные четырёхмерные координаты
                 float nx = x1 + Mathf.Cos(s * 2 * Mathf.PI) * dx / (2 * Mathf.PI);
-                float ny = x1 + Mathf.Sin(s * 2 * Mathf.PI) * dx / (2 * Mathf.PI);
-                float nz = t;
+                float ny = y1 + Mathf.Cos(t * 2 * Mathf.PI) * dy / (2 * Mathf.PI);
+                float nz = x1 + Mathf.Sin(s * 2 * Mathf.PI) * dx / (2 * Mathf.PI);
+                float nw = y1 + Mathf.Sin(t * 2 * Mathf.PI) * dy / (2 * Mathf.PI);
                 
-                //float heightValue = (float) _heightMap.Get(x1, y1);
-                float heightValue = (float) _heightMap.Get(nx, ny, nz);
+                float heightValue = (float) _heightMap.Get(nx, ny, nz, nw);
                 
                 // отслеживаем максимальные и минимальные найденные значения
                 if (heightValue > mapData.Max) { mapData.Max = heightValue; }
@@ -103,16 +115,21 @@ public class Generator : MonoBehaviour {
                 tile.X = x;
                 tile.Y = y;
 
-                float value = _heightData.Data[x, y];
+                float heightValue = _heightMapData.Data[x, y];
 
                 // нормализуем наше значение от 0 до 1
-                value = (value - _heightData.Min) / (_heightData.Max - _heightData.Min);
+                heightValue = (heightValue - _heightMapData.Min) / (_heightMapData.Max - _heightMapData.Min);
 
-                tile.HeightValue = value;
+                tile.HeightValue = heightValue;
+                
+                tile.SetHeightData(GetHeightDataByValue(heightValue));
 
                 _tiles[x, y] = tile;
             }
         }
+        
+        _tilesSearch.UpdateNeighbors();
+        _tilesSearch.UpdateBitmasks();
     }
 
     public HeightData GetHeightDataByValue(float value) {

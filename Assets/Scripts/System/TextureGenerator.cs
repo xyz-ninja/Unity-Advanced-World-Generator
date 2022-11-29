@@ -8,7 +8,6 @@ public static class TextureGenerator {
 		var pixels = new Color[width * height];
 
 		for (int x = 0; x < width; x++) {
-
 			for (int y = 0; y < height; y++) {
 
 				float heightValue = tiles[x, y].HeightValue;
@@ -16,6 +15,11 @@ public static class TextureGenerator {
 				var heightData = generator.GetHeightDataByValue(heightValue);
 
 				pixels[x + y * width] = heightData.Color;
+
+				//затемняем цвет граничного тайла
+				if (tiles[x, y].Bitmask != 15) {
+					pixels[x + y * width] = Color.Lerp(pixels[x + y * width], Color.black, 0.4f);
+				}
 
 				//pixels[x + y * width] = Color.Lerp(Color.black, Color.white, heightValue);
 			}
