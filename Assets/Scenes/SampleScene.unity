@@ -176,30 +176,37 @@ MonoBehaviour:
   _terrainFrequency: 1.25
   _heightDatas:
   - Name: Deep Water
+    IsFluid: 1
     _index: 0
     _heightValue: 0.2
     _color: {r: 0, g: 0.07269773, b: 0.7264151, a: 1}
   - Name: Shallow Water
+    IsFluid: 1
     _index: 1
     _heightValue: 0.4
     _color: {r: 0.19784619, g: 0.2483781, b: 0.735849, a: 1}
   - Name: Sand
+    IsFluid: 0
     _index: 2
     _heightValue: 0.5
     _color: {r: 0.754717, g: 0.59228647, b: 0, a: 1}
   - Name: Grass
+    IsFluid: 0
     _index: 3
     _heightValue: 0.7
     _color: {r: 0.21317251, g: 0.5, b: 0.1957547, a: 1}
   - Name: Forest
+    IsFluid: 0
     _index: 4
     _heightValue: 0.8
     _color: {r: 0.07983268, g: 0.24528301, b: 0.112394325, a: 1}
   - Name: Rock
+    IsFluid: 0
     _index: 5
     _heightValue: 0.9
     _color: {r: 0.2790139, g: 0.29859447, b: 0.3584906, a: 1}
   - Name: Snow
+    IsFluid: 0
     _index: 6
     _heightValue: 1
     _color: {r: 1, g: 1, b: 1, a: 1}

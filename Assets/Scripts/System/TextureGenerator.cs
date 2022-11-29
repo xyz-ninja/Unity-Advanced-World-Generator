@@ -21,6 +21,20 @@ public static class TextureGenerator {
 					pixels[x + y * width] = Color.Lerp(pixels[x + y * width], Color.black, 0.4f);
 				}
 
+				/*
+				foreach (var waterGroup in generator.Waters) {
+					if (waterGroup.Tiles.Contains(tiles[x, y])) {
+						pixels[x + y * width] = Color.blue;
+					}
+				}
+				
+				foreach (var landGroup in generator.Lands) {
+					if (landGroup.Tiles.Contains(tiles[x, y])) {
+						pixels[x + y * width] = Color.magenta;
+					}
+				}
+				*/
+				
 				//pixels[x + y * width] = Color.Lerp(Color.black, Color.white, heightValue);
 			}
 		}

@@ -19,6 +19,9 @@ public class Generator : MonoBehaviour {
     [Header("Height Datas")]
     [SerializeField] private List<HeightData> _heightDatas = new List<HeightData>();
     
+    private List<TileGroup> _waters = new List<TileGroup>();
+    private List<TileGroup> _lands = new List<TileGroup>();
+    
     // модуль генератора шума
     private ImplicitFractal _heightMap;
     
@@ -37,6 +40,9 @@ public class Generator : MonoBehaviour {
 
     public Tile[,] Tiles => _tiles;
 
+    public List<TileGroup> Waters => _waters;
+    public List<TileGroup> Lands => _lands;
+
     #endregion
     
     private void Start() {
@@ -45,6 +51,9 @@ public class Generator : MonoBehaviour {
 
     [Button()]
     public void Generate() {
+        
+        _lands.Clear();
+        _waters.Clear();
         
         Initialize();
 
@@ -121,16 +130,111 @@ public class Generator : MonoBehaviour {
                 heightValue = (heightValue - _heightMapData.Min) / (_heightMapData.Max - _heightMapData.Min);
 
                 tile.HeightValue = heightValue;
-                
-                tile.SetHeightData(GetHeightDataByValue(heightValue));
 
+                var heightData = GetHeightDataByValue(heightValue);
+                
+                tile.SetHeightData(heightData);
+                tile.Solid = heightData.IsFluid == false;
+                
                 _tiles[x, y] = tile;
             }
         }
         
         _tilesSearch.UpdateNeighbors();
         _tilesSearch.UpdateBitmasks();
+        
+        FloodFill();
+        
+        Debug.Log("Land groups : " + _lands.Count);
+        Debug.Log("Water groups : " + _waters.Count);
     }
+
+    private void FloodFill() {
+        
+        // используем стек вместо рекурсии, рекурсия при таком кол-ве данных быстро выдаст StackOverflow
+        Stack<Tile> stack = new Stack<Tile>();
+
+        for (int x = 0; x < _width; x++) {
+            for (int y = 0; y < _height; y++) {
+
+                Tile tile = _tiles[x, y];
+                
+                // тайл уже залит, пропускаем его
+                if (tile.FloodFilled) {
+                    continue;
+                }
+                
+                if (tile.Solid) {
+                    
+                    // суша
+                    
+                    var group = new TileGroup();
+                    group.Type = TILE_GROUP_TYPE.LAND;
+                    stack.Push(tile);
+
+                    while (stack.Count > 0) {
+                        FloodFill(stack.Pop(), ref group, ref stack);
+                    }
+
+                    if (group.Tiles.Count > 0) {
+                        _lands.Add(group);
+                    }
+                    
+                } else {
+                    
+                    // вода
+                    
+                    var group = new TileGroup();
+                    group.Type = TILE_GROUP_TYPE.WATER;
+                    stack.Push(tile);
+
+                    while (stack.Count > 0) {
+                        FloodFill(stack.Pop(), ref group, ref stack);
+                    }
+
+                    if (group.Tiles.Count > 0) {
+                        _waters.Add(group);
+                    }
+                }
+            }
+        }
+    }
+
+    private void FloodFill(Tile tile, ref TileGroup tiles, ref Stack<Tile> stack) {
+        
+        // валидация
+        if (tile.FloodFilled) { return; }
+        
+        if (tiles.Type == TILE_GROUP_TYPE.LAND && tile.Solid == false) { return; }
+        if (tiles.Type == TILE_GROUP_TYPE.WATER && tile.Solid) { return; }
+        
+        // добавляем в TileGroup
+        tiles.Tiles.Add(tile);
+        tile.FloodFilled = true;
+        
+        // заливка соседей
+        Tile aroundTile = _tilesSearch.GetTop(tile);
+        if (aroundTile.FloodFilled == false && tile.Solid == aroundTile.Solid) {
+            stack.Push(aroundTile);
+        }
+
+        aroundTile = _tilesSearch.GetBottom(tile);
+        if (aroundTile.FloodFilled == false && tile.Solid == aroundTile.Solid) {
+            stack.Push(aroundTile);
+        }
+
+        aroundTile = _tilesSearch.GetLeft(tile);
+        if (aroundTile.FloodFilled == false && tile.Solid == aroundTile.Solid) {
+            stack.Push(aroundTile);
+        }
+
+        aroundTile = _tilesSearch.GetRight(tile);
+        if (aroundTile.FloodFilled == false && tile.Solid == aroundTile.Solid) {
+            stack.Push(aroundTile);
+        }
+    }
+
+    #region get/set
 
     public HeightData GetHeightDataByValue(float value) {
         foreach (var heightData in _heightDatas) {
@@ -142,5 +246,7 @@ public class Generator : MonoBehaviour {
         Debug.Log("HeightData not found!");
         return _heightDatas[0];
     }
+    
+    #endregion
 }
  

@@ -13,6 +13,9 @@ public class Tile {
 	public Tile Top { get; set; }
 	public Tile Bottom { get; set; }
 
+	public bool Solid;
+	public bool FloodFilled; // тайлы уже обработанные алгоритмом заливки
+	
 	#region getters
 
 	public HeightData HeightData => _heightData;
